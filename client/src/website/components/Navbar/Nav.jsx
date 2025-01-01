@@ -1,62 +1,120 @@
-// src/CustomNavbar.jsx
-import React from 'react';
-import Logo from '../../assets/images/AarohiLogo.png';
-
+import { useEffect, useState } from "react";
+import Logo from "../../assets/images/AarohiLogo.png";
 
 const CustomNavbar = () => {
-  return (
+  const [isSticky, setIsSticky] = useState(false);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isMobileDropdownVisible, setIsMobileDropdownVisible] = useState(false);
+  let hideTimeout;
 
-      <div className="container mx-auto flex justify-between items-center">
+  useEffect(() => {
+    const handleScroll = () => setIsSticky(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const showDropdown = () => {
+    clearTimeout(hideTimeout);
+    setIsDropdownVisible(true);
+  };
+
+  const hideDropdown = () => {
+    hideTimeout = setTimeout(() => setIsDropdownVisible(false), 300);
+  };
+
+  return (
+    <div className={`w-full z-50 transition-all duration-300 ${isSticky ? "fixed top-0 left-0 bg-white shadow-md" : "relative"}`}>
+      
+      <div className="container mx-auto flex justify-between items-center px-4 py-3">
+        
         <a href="#home" className="flex items-center">
-          <img src={Logo} alt="Hospital Logo" className="h-20 w-20" />
+          <img src={Logo} alt="Hospital Logo" className="h-14 w-14" />
         </a>
 
-        {/* Toggle Button for Mobile */}
-        <button
-          className="block lg:hidden text-gray-800 focus:outline-none"
-          aria-label="Toggle Menu"
+        <div className="hidden lg:flex lg:items-center lg:space-x-10">
+          <a href="#home" className="text-green-600 hover:text-green-700 text-xl font-bold">Home</a>
+          
+          <div className="relative" onMouseEnter={showDropdown} onMouseLeave={hideDropdown}>
+            <button className="text-gray-700 hover:text-gray-900 text-xl font-bold inline-flex items-center">
+              Services
+              <svg className="w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            {isDropdownVisible && (
+              <div className="absolute bg-white divide-y divide-gray-100 rounded-lg shadow w-44 mt-2">
+                <ul className="py-2 text-sm text-gray-700">
+                  {["Service 1", "Service 2", "Service 3"].map(service => (
+                    <li key={service}>
+                      <a href={`#${service.toLowerCase().replace(" ", "")}`} className="block px-4 py-2 hover:bg-gray-100">{service}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <a href="#doctors" className="text-gray-700 hover:text-gray-900 text-xl font-bold">Doctors</a>
+          <a href="#aboutus" className="text-gray-700 hover:text-gray-900 text-xl font-bold">About Us</a>
+          <a href="#contactus" className="text-gray-700 hover:text-gray-900 text-xl font-bold">Contact Us</a>
+
+          
+        </div>
+
+        <div className="hidden lg:flex lg:items-center lg:space-x-2">
+          <button className="bg-green-600 text-white px-4 md:px-6 py-2 rounded-md hover:bg-green-700 text-lg md:text-xl">Sign in</button>
+          <button className="border border-green-900 text-green-600 px-4 md:px-6 py-2 rounded-md hover:bg-green-700 text-lg md:text-xl">Sign up</button>
+        </div>
+
+        <button 
+          className="block lg:hidden text-gray-800 focus:outline-none" 
+          aria-label="Toggle Menu" 
           onClick={() => document.getElementById("menu").classList.toggle("hidden")}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
           </svg>
         </button>
 
-        {/* Menu Items */}
-        <div className="hidden lg:flex lg:items-center lg:space-x-10" id="menu">
-          <a href="#home" className="text-green-600 hover:text-green-700 no-underline text-xl font-bold">Home</a><br/>
-          <div className="relative group">
-            <button className="text-gray-700 hover:text-gray-900 flex items-center mt-6 font-bold text-xl">
+        <div className="hidden lg:hidden absolute top-full left-0 w-full bg-white shadow-md z-50" id="menu">
+          <a href="#home" className="block px-4 py-2 text-gray-700">Home</a>
+          
+          <div className="block px-4 py-2 text-gray-700 relative">
+            <button 
+              onClick={() => setIsMobileDropdownVisible(!isMobileDropdownVisible)} 
+              className="flex justify-between items-center w-full"
+            >
               Services
-              <svg className="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" d="M5.292 7.292a1 1 0 011.415 0L10 10.586l3.293-3.294a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              <svg className="w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-
-            {/* Dropdown */}<br/>
-            <ul className="absolute hidden group-hover:block bg-white shadow-md mt-2 rounded">
-              <li>
-                <a href="#service1" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline w-40  font-bold">Service 1</a>
-              </li>
-              <li>
-                <a href="#service2" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline font-bold">Service 2</a>
-              </li>
-              <li>
-                <a href="#service3" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline font-bold">Service 3</a>
-              </li>
-            </ul>
+            
+            {isMobileDropdownVisible && (
+              <div className="absolute bg-white divide-y divide-gray-100 rounded-lg shadow w-full mt-2">
+                <ul className="py-2 text-sm text-gray-700">
+                  {["Service 1", "Service 2", "Service 3"].map(service => (
+                    <li key={service}>
+                      <a href={`#${service.toLowerCase().replace(" ", "")}`} className="block px-4 py-2 hover:bg-gray-100">{service}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
-          <a href="#doctors" className="text-gray-700 hover:text-gray-900 no-underline font-bold text-xl">Doctors</a><br/><br/>
-          <a href="#about" className="text-gray-700 hover:text-gray-900 no-underline font-bold text-xl">About us</a><br/><br/>
-          <a href="#contact" className="text-gray-700 hover:text-gray-900 no-underline font-bold text-xl">Contact us</a><br/><br/>
-        </div>
 
-        {/* Sign in - Sign Up Buttons */}
-        <div className="hidden lg:flex lg:items-center lg:space-x-2">
-          <button className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-200 text-xl">Sign in</button>
-          <button className="border border-green-900 text-green-600 px-6 py-2 rounded-md hover:bg-green-700 text-xl">Sign up</button>
+          {["Doctors", "About us", "Contact us"].map(item => (
+            <a key={item} href={`#${item.toLowerCase().replace(" ", "")}`} className="block px-4 py-2 text-gray-700">{item}</a>
+          ))}
+
+          <div className="flex flex-col space-y-2 p-4">
+            <button className="bg-green-600 text-white px-4 md:px-6 py-2 rounded-md hover:bg-green-700 text-lg md:text-xl">Sign in</button>
+            <button className="border border-green-900 text-green-600 px-4 md:px-6 py-2 rounded-md hover:bg-green-700 text-lg md:text-xl">Sign up</button>
+          </div>
         </div>
       </div>
+    </div>
   );
 };
 
